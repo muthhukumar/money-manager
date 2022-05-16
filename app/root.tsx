@@ -1,9 +1,5 @@
-import type {
-  LinksFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
+import * as React from "react";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -14,10 +10,19 @@ import {
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
-import { getUser } from "./session.server";
+import { ChakraProvider } from "@chakra-ui/react";
+import { theme } from "./theme";
 
 export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
+  return [
+    { rel: "stylesheet", href: tailwindStylesheetUrl },
+    { rel: "preconnect", href: "https://fonts.googleapis.com" },
+    { rel: "preconnect", href: "https://fonts.gstaticom" },
+    {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap",
+    },
+  ];
 };
 
 export const meta: MetaFunction = () => ({
@@ -26,17 +31,7 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-type LoaderData = {
-  user: Awaited<ReturnType<typeof getUser>>;
-};
-
-export const loader: LoaderFunction = async ({ request }) => {
-  return json<LoaderData>({
-    user: await getUser(request),
-  });
-};
-
-export default function App() {
+function Document({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
       <head>
@@ -44,11 +39,21 @@ export default function App() {
         <Links />
       </head>
       <body className="h-full">
-        <Outlet />
+        {children}
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
       </body>
     </html>
+  );
+}
+
+export default function App() {
+  return (
+    <Document>
+      <ChakraProvider theme={theme}>
+        <Outlet />
+      </ChakraProvider>
+    </Document>
   );
 }
