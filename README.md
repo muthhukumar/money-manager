@@ -90,8 +90,8 @@ Prior to your first deployment, you'll need to do a few things:
 - Create two apps on Fly, one for staging and one for production:
 
   ```sh
-  fly create money-manager-dbb0
-  fly create money-manager-dbb0-staging
+  fly create money-manager
+  fly create money-manager-staging
   ```
 
 - Initialize Git.
@@ -111,14 +111,14 @@ Prior to your first deployment, you'll need to do a few things:
 - Add a `SESSION_SECRET` to your fly app secrets, to do this you can run the following commands:
 
   ```sh
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app money-manager-dbb0
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app money-manager-dbb0-staging
+  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app money-manager
+  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app money-manager-staging
   ```
 
   > **Note:** When creating the staging secret, you may get a warning from the Fly CLI that looks like this:
   >
   > ```
-  > WARN app flag 'money-manager-dbb0-staging' does not match app name in config file 'money-manager-dbb0'
+  > WARN app flag 'money-manager-staging' does not match app name in config file 'money-manager'
   > ```
   >
   > This simply means that the current directory contains a config that references the production app we created in the first step. Ignore this warning and proceed to create the secret.
@@ -128,11 +128,11 @@ Prior to your first deployment, you'll need to do a few things:
 - Create a database for both your staging and production environments. Run the following:
 
   ```sh
-  fly postgres create --name money-manager-dbb0-db
-  fly postgres attach --postgres-app money-manager-dbb0-db --app money-manager-dbb0
+  fly postgres create --name money-manager-db
+  fly postgres attach --postgres-app money-manager-db --app money-manager
 
-  fly postgres create --name money-manager-dbb0-staging-db
-  fly postgres attach --postgres-app money-manager-dbb0-staging-db --app money-manager-dbb0-staging
+  fly postgres create --name money-manager-staging-db
+  fly postgres attach --postgres-app money-manager-staging-db --app money-manager-staging
   ```
 
   > **Note:** You'll get the same warning for the same reason when attaching the staging database that you did in the `fly set secret` step above. No worries. Proceed!
