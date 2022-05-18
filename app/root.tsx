@@ -12,6 +12,7 @@ import {
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { theme } from "./theme";
+import { Sidebar } from "./components";
 
 export const links: LinksFunction = () => {
   return [
@@ -52,8 +53,19 @@ export default function App() {
   return (
     <Document>
       <ChakraProvider theme={theme}>
-        <Outlet />
+        <Layout>
+          <Outlet />
+        </Layout>
       </ChakraProvider>
     </Document>
+  );
+}
+
+function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <div>
+      <Sidebar />
+      {children}
+    </div>
   );
 }
