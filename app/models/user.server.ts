@@ -1,6 +1,9 @@
+import { redirect } from "@remix-run/node";
 import type { User } from "@prisma/client";
 
 import { prisma } from "~/db.server";
+import { authenticator } from "~/services/auth.service";
+import { getSession } from "~/services/session.server";
 
 export type { User } from "@prisma/client";
 
@@ -22,4 +25,12 @@ export async function findOrCreateUser({
   }
 
   return user;
+}
+
+export async function getUser(request: Request) {
+  const { email = "" } = (await authenticator.isAuthenticated(request)) ?? {};
+
+  if (!email) return null;
+
+  return prisma.user.findUnique({ where: { email } });
 }

@@ -1,5 +1,6 @@
 // TODO - check the Link prop interface
 
+import type { User } from "@prisma/client";
 import type { IconType } from "react-icons";
 
 import * as React from "react";
@@ -24,8 +25,8 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import { FiList, FiMenu, FiBell, FiChevronDown } from "react-icons/fi";
-import { Link } from "@remix-run/react";
+import { FiList, FiMenu, FiChevronDown } from "react-icons/fi";
+import { Link, useSubmit } from "@remix-run/react";
 import { IoIosAnalytics } from "react-icons/io";
 import { GrMoney } from "react-icons/gr";
 import { FcMoneyTransfer } from "react-icons/fc";
@@ -118,7 +119,15 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
   );
 };
 
-const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+const MobileNav = ({
+  onOpen,
+  ...rest
+}: MobileProps & {
+  profileUrl: User["profileUrl"] | null;
+  email: User["email"] | null;
+}) => {
+  const submit = useSubmit();
+
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -149,12 +158,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       </Text>
 
       <HStack spacing={{ base: "0", md: "6" }}>
-        <IconButton
-          size="lg"
-          variant="ghost"
-          aria-label="open menu"
-          icon={<FiBell />}
-        />
         <Flex alignItems={"center"}>
           <Menu>
             <MenuButton
@@ -163,22 +166,14 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               _focus={{ boxShadow: "none" }}
             >
               <HStack>
-                <Avatar
-                  size={"sm"}
-                  src={
-                    "https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9"
-                  }
-                />
+                <Avatar size={"sm"} src={rest.profileUrl ?? ""} />
                 <VStack
                   display={{ base: "none", md: "flex" }}
                   alignItems="flex-start"
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">Justina Clark</Text>
-                  <Text fontSize="xs" color="gray.600">
-                    Admin
-                  </Text>
+                  <Text fontSize="sm">{rest?.email}</Text>
                 </VStack>
                 <Box display={{ base: "none", md: "flex" }}>
                   <FiChevronDown />
@@ -193,7 +188,13 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               <MenuItem>Settings</MenuItem>
               <MenuItem>Billing</MenuItem>
               <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
+              <MenuItem
+                onClick={() =>
+                  submit(null, { method: "post", action: "/logout" })
+                }
+              >
+                Sign out
+              </MenuItem>
             </MenuList>
           </Menu>
         </Flex>
@@ -204,10 +205,13 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
 export default function SidebarWithHeader({
   children,
+  user,
 }: {
   children: React.ReactNode;
+  user: User | null;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <>
       <SidebarContent
@@ -227,7 +231,11 @@ export default function SidebarWithHeader({
           <SidebarContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
-      <MobileNav onOpen={onOpen} />
+      <MobileNav
+        onOpen={onOpen}
+        email={(user && user.email) ?? null}
+        profileUrl={(user && user.profileUrl) ?? null}
+      />
       <Box ml={{ base: 0, md: 60 }} p="4">
         {children}
       </Box>

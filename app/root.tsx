@@ -1,5 +1,9 @@
 import * as React from "react";
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import type {
+  LinksFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -7,12 +11,16 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
+  useLocation,
 } from "@remix-run/react";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { theme } from "./theme";
-import { Sidebar } from "./components";
+import { Sidebar, Visibility } from "./components";
+import { getUser } from "./models/user.server";
+import { isUnAuthenticatedRoute } from "./utils";
 
 export const links: LinksFunction = () => {
   return [
@@ -31,6 +39,10 @@ export const meta: MetaFunction = () => ({
   title: "Remix Notes",
   viewport: "width=device-width,initial-scale=1",
 });
+
+export const loader: LoaderFunction = async ({ request }) => {
+  return getUser(request);
+};
 
 function Document({ children }: { children: React.ReactNode }) {
   return (
@@ -62,9 +74,18 @@ export default function App() {
 }
 
 function Layout({ children }: { children: React.ReactNode }) {
+  const user = useLoaderData<Awaited<ReturnType<typeof getUser>>>();
+
+  const location = useLocation();
+
   return (
     <div className="min-h-screen">
-      <Sidebar>{children}</Sidebar>
+      <Visibility
+        condition={!isUnAuthenticatedRoute(location.pathname)}
+        either={children}
+      >
+        <Sidebar user={user}>{children}</Sidebar>
+      </Visibility>
     </div>
   );
 }

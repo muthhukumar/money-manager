@@ -25,3 +25,9 @@ export function safeRedirect(
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
+
+export function isUnAuthenticatedRoute(location: string) {
+  const unauthenticatedRoutes = ["/login"];
+
+  return unauthenticatedRoutes.includes(location);
+}
