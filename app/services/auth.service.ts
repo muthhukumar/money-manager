@@ -45,7 +45,10 @@ const googleStrategy = new GoogleStrategy(
   },
   async ({ profile }) => {
     // Get the user data from your DB or API using the tokens and profile
-    return findOrCreateUser(profile.emails[0].value ?? "");
+    return findOrCreateUser({
+      email: profile.emails[0].value ?? "",
+      profileUrl: profile._json.picture,
+    });
   }
 );
 
